@@ -10,8 +10,39 @@ import '@/assets/scss/index.scss'
 import httpRequest from '@/utils/httpRequest' // api: https://github.com/axios/axios
 import { isAuth } from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
+import 'jquery'
+import VueVideoPlayer from 'vue-video-player'
+import 'video.js/dist/video-js.css'
+import 'vue-video-player/src/custom-theme.css'
+import 'videojs-contrib-hls'
+import 'videojs-flash'
+import Viewer from 'v-viewer'
+import Print from 'vue-print-nb'
 
 Vue.use(VueCookie)
+Vue.use(VueVideoPlayer)
+Vue.use(Viewer)
+Vue.use(Print)
+
+Viewer.setDefaults({
+  Options: {
+    'inline': true,
+    'button': true,
+    'navbar': true,
+    'title': true,
+    'toolbar': true,
+    'tooltip': true,
+    'movable': true,
+    'zoomable': true,
+    'rotatable': true,
+    'scalable': true,
+    'transition': true,
+    'fullscreen': true,
+    'keyboard': true,
+    'url': 'data-source'
+  }
+})
+
 Vue.config.productionTip = false
 
 // 非生产环境, 适配mockjs模拟数据                 // api: https://github.com/nuysoft/Mock

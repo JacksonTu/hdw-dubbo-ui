@@ -11,14 +11,14 @@
     </el-form>
     <el-table
       :data="dataList"
+      row-key="id"
       border
       style="width: 100%;">
-      <table-tree-column
+      <el-table-column
         prop="varName"
         header-align="center"
-        treeKey="id"
         label="变量名称">
-      </table-tree-column>
+      </el-table-column>
       <el-table-column
         prop="varCode"
         header-align="center"
@@ -56,7 +56,6 @@
 </template>
 
 <script>
-  import TableTreeColumn from '@/components/table-tree-column'
   import AddOrUpdate from './dic-add-or-update'
   import {treeDataTranslate} from '@/utils'
 
@@ -70,7 +69,6 @@
       }
     },
     components: {
-      TableTreeColumn,
       AddOrUpdate
     },
     activated () {

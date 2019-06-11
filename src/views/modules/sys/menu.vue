@@ -7,15 +7,15 @@
     </el-form>
     <el-table
       :data="dataList"
+      row-key="id"
       border
       style="width: 100%;">
-      <table-tree-column
+      <el-table-column
         prop="name"
         header-align="center"
-        treeKey="id"
         width="150"
         label="名称">
-      </table-tree-column>
+      </el-table-column>
       <el-table-column
         prop="parentName"
         header-align="center"
@@ -84,7 +84,6 @@
 </template>
 
 <script>
-  import TableTreeColumn from '@/components/table-tree-column'
   import AddOrUpdate from './menu-add-or-update'
   import { treeDataTranslate } from '@/utils'
   export default {
@@ -97,7 +96,6 @@
       }
     },
     components: {
-      TableTreeColumn,
       AddOrUpdate
     },
     activated () {

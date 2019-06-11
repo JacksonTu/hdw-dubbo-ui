@@ -1,5 +1,6 @@
 'use strict'
 const path = require('path')
+const webpack = require("webpack")
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
@@ -38,6 +39,13 @@ module.exports = {
       '@': resolve('src'),
     }
   },
+  plugins: [
+    new webpack.optimize.CommonsChunkPlugin('common.js'),
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    })
+  ],
   module: {
     rules: [
       ...(config.dev.useEslint ? [createLintingRule()] : []),
