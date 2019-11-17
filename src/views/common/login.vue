@@ -19,95 +19,101 @@
 </template>
 
 <script>
-    import {aes} from '@/utils/crypto'
+    import aes from '@/utils/encrypte.js'
+    // import aes from  'crypto-js'
 
     export default {
-      data () {
-        return {
-          dataForm: {
-            userName: '',
-            password: '',
-            uuid: '',
-            captcha: ''
-          },
-          dataRule: {
-            userName: [
-                        {required: true, message: '帐号不能为空', trigger: 'blur'}
-            ],
-            password: [
-                        {required: true, message: '密码不能为空', trigger: 'blur'}
-            ],
-            captcha: [
-                        {required: true, message: '验证码不能为空', trigger: 'blur'}
-            ]
-          },
-          captchaPath: ''
-        }
-      },
-      created () {
-      },
-      methods: {
-            // 提交表单
-        dataFormSubmit () {
-          this.$refs['dataForm'].validate((valid) => {
-            if (valid) {
-              this.$http({
-                url: this.$http.adornUrl('/sys/login'),
-                method: 'post',
-                data: this.$http.adornData({
-                  'username': aes.en(JSON.stringify(this.dataForm.userName)),
-                  'password': aes.en(JSON.stringify(this.dataForm.password))
-                })
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-                  this.$cookie.set('token', data.data.token)
-                  this.$router.replace({name: 'home'})
-                } else {
-                  this.$message.error(data.data.msg)
-                }
-              })
+        data() {
+            return {
+                dataForm: {
+                    userName: '',
+                    password: '',
+                    uuid: '',
+                    // captcha: ''
+                },
+                dataRule: {
+                    userName: [{
+                        required: true,
+                        message: '帐号不能为空',
+                        trigger: 'blur'
+                    }],
+                    password: [{
+                        required: true,
+                        message: '密码不能为空',
+                        trigger: 'blur'
+                    }],
+                    captcha: [{
+                        required: true,
+                        message: '验证码不能为空',
+                        trigger: 'blur'
+                    }]
+                },
+                captchaPath: ''
             }
-          })
+        },
+        created() {},
+        methods: {
+            // 提交表单
+            dataFormSubmit() {
+                this.$refs['dataForm'].validate((valid) => {
+                    if (valid) {
+                        this.$http({
+                            url: this.$http.adornUrl('/sys/login'),
+                            method: 'post',
+                            data: this.$http.adornData({
+                                'username': aes.Encrypt(JSON.stringify(this.dataForm.userName)),
+                                'password': aes.Encrypt(JSON.stringify(this.dataForm.password))
+                            })
+                        }).then(({
+                            data
+                        }) => {
+                            console.log("unknown")
+                            if (data && data.code === 0) {
+                                this.$cookie.set('token', data.data.token)
+                                this.$router.replace({
+                                    name: 'home'
+                                })
+                            } else {
+                                this.$message.error(data.data.msg)
+                            }
+                        })
+                    }
+                })
+            }
         }
-      }
     }
 </script>
 
 <style lang="scss">
-  .site-wrapper.site-page--login {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: url(~@/assets/img/login_bg.jpg);
-    background-size: cover;
-    z-index: -1;
-    overflow: hidden;
-
-    .login-main {
-      margin: 20vh auto;
-      padding: 50px 80px;
-      width: 500px;
-      background-color: #fff;
+    .site-wrapper.site-page--login {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-image: url(~@/assets/img/login_bg.jpg);
+        background-size: cover;
+        z-index: -1;
+        overflow: hidden;
+        .login-main {
+            margin: 20vh auto;
+            padding: 50px 80px;
+            width: 500px;
+            background-color: #fff;
+        }
+        .login-title {
+            font-size: 16px;
+        }
+        .login-captcha {
+            overflow: hidden;
+            >img {
+                width: 100%;
+                cursor: pointer;
+            }
+        }
+        .login-btn-submit {
+            width: 100%;
+            margin-top: 38px;
+        }
     }
-
-    .login-title {
-      font-size: 16px;
-    }
-
-    .login-captcha {
-      overflow: hidden;
-
-      > img {
-        width: 100%;
-        cursor: pointer;
-      }
-    }
-
-    .login-btn-submit {
-      width: 100%;
-      margin-top: 38px;
-    }
-  }
 </style>
