@@ -330,7 +330,7 @@
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
-            this.roleList = data && data.code === 0 ? data.list : []
+            this.roleList = data && data.code === 0 ? data.data.list : []
           })
         },
             // 获取企业树
