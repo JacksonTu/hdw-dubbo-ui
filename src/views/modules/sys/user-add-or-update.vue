@@ -340,7 +340,7 @@
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
-            this.unitList = data.list
+            this.unitList = data.data
           })
         },
         // 获取企业部门树
@@ -352,7 +352,7 @@
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
-            this.deptOptions = treeDataTranslate(data.list)
+            this.deptOptions = treeDataTranslate(data.data)
           })
         },
         // 获取部门职位树
@@ -364,7 +364,7 @@
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
-            this.jobList = data.list
+            this.jobList = data.data
           })
         },
         // 企业选择改变
