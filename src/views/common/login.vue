@@ -63,7 +63,7 @@
                   this.$cookie.set('token', data.data.token)
                   this.$router.replace({name: 'home'})
                 } else {
-                  this.$message.error(data.data.msg)
+                  this.$message.error(data.msg)
                 }
               })
             }
