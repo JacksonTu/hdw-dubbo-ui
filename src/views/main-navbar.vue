@@ -24,39 +24,11 @@
             </el-badge>
           </template>
         </el-menu-item>
-        <el-menu-item  index="2">
+        <el-menu-item  class="site-navbar__avatar" index="2">
           <i class="el-icon-rank" title="浏览器内全屏"></i>
         </el-menu-item>
-        <el-menu-item index="3" @click="bigMsgShow">
-          <el-dropdown :show-timeout="0" placement="bottom">
-            <span class="el-dropdown-link" style="outline: none;">
-              <i class="el-icon-bell"></i>
-            </span>
-            <a class="messageHide" v-if="unreadSmsCount>0">{{unreadSmsCount}}</a>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :key="index" v-for="(messageContent,index) in messageContentFive"
-                                @click.native="smallMsgShow(messageContent)">
-                <el-row style="max-width: 200px;">
-                  <el-col :span="24" style="
-                  display: -webkit-box;
-                  -webkit-box-orient: vertical;
-                  -webkit-line-clamp: 2;
-                  overflow: hidden;
-                  line-height: 1.5em;
-                  padding-top:6px;
-                  color: #606266;">{{messageContent.content}}
-                  </el-col>
-                  <el-col :span="24" style="font-size: 12px; color: #999;">{{messageContent.timeStr}}</el-col>
-                </el-row>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-row :gutter="20" v-if="unreadSmsCount>0" style="max-width: 200px;">
-                  <el-col :span="12" @click.native="handleUpdateMsgStatus2">标记当前为已读</el-col>
-                  <el-col :span="12" @click.native="bigMsgShow">查看全部</el-col>
-                </el-row>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+        <el-menu-item class="site-navbar__avatar" index="3">
+          <message></message>
         </el-menu-item>
         <el-menu-item class="site-navbar__avatar" index="4">
           <el-dropdown :show-timeout="0" placement="bottom">
@@ -73,31 +45,23 @@
     </div>
     <!-- 弹窗, 修改密码 -->
     <update-password v-if="updatePassowrdVisible" ref="updatePassowrd"></update-password>
-    <!-- 全部消息 -->
-    <big-message v-if="bigMessageVisible" ref="bigMessage"></big-message>
   </nav>
 </template>
 
 <script>
     import UpdatePassword from './main-navbar-update-password'
-    import {clearLoginInfo, getUUID} from '@/utils'
-    import BigMessage from './common/message'
+    import {clearLoginInfo} from '@/utils'
+    import message from './main-message'
 
     export default {
       data () {
         return {
-          updatePassowrdVisible: false,
-          messageContentFive: [],
-          unreadSmsCount: 0,
-          fiveMoreVisible: false,
-          websocket: null,
-          websocket2: null,
-          bigMessageVisible: false
+          updatePassowrdVisible: false
         }
       },
       components: {
         UpdatePassword,
-        BigMessage
+        message
       },
       computed: {
         navbarLayoutType: {
@@ -133,12 +97,8 @@
         }
       },
       created () {
-        this.initWebSocket()
-        this.initWebSocket2()
       },
       destroyed () {
-        this.over()
-        this.over2()
       },
       methods: {
             // 修改密码
@@ -167,115 +127,6 @@
             })
           }).catch(() => {
           })
-        },
-            // 接收最近5条未读消息及未读消息数量
-        initWebSocket () {
-          const wsUrl = window.SITE_CONFIG.wsUrl + '/ws/homeSms/' + this.userId + '_' + getUUID()
-          this.websocket = new WebSocket(wsUrl)
-          this.websocket.onopen = this.webSocketOnOpen
-          this.websocket.onerror = this.webSocketOnError
-          this.websocket.onmessage = this.webSocketOnMessage
-          this.websocket.onclose = this.webSocketClose()
-          this.over = () => {
-            this.websocket.close()
-          }
-        },
-            // 连接成功
-        webSocketOnOpen () {
-          console.log('WebSocket连接成功')
-        },
-            // 错误
-        webSocketOnError (e) {
-          console.log('WebSocket连接发生错误')
-        },
-            // 数据接收
-        webSocketOnMessage (e) {
-          const receiveData = JSON.parse(e.data)
-          this.messageContentFive = []
-          if (receiveData.list) {
-            this.messageContentFive = receiveData.list
-          }
-          if (receiveData.count) {
-            this.unreadSmsCount = receiveData.count
-            this.fiveMoreVisible = true
-          } else {
-            this.fiveMoreVisible = false
-            this.unreadSmsCount = 0
-          }
-        },
-            // 数据发送
-        webSocketSend (data) {
-          this.websocket.send(data)
-        },
-            // 关闭
-        webSocketClose (e) {
-          console.log('WebSocket连接关闭')
-        },
-            // 接收实时页面消息
-        initWebSocket2 () {
-          const wsUrl = window.SITE_CONFIG.wsUrl + '/ws/sms/' + this.userId + '_' + getUUID()
-          this.websocket2 = new WebSocket(wsUrl)
-          this.websocket2.onopen = this.webSocketOnOpen2
-          this.websocket2.onerror = this.webSocketOnError2
-          this.websocket2.onmessage = this.webSocketOnMessage2
-          this.websocket2.onclose = this.webSocketClose2()
-          this.over2 = () => {
-            this.websocket2.close()
-          }
-        },
-            // 连接成功
-        webSocketOnOpen2 () {
-          console.log('2 WebSocket连接成功')
-        },
-            // 错误
-        webSocketOnError2 (e) {
-          console.log('2 WebSocket连接发生错误')
-        },
-            // 数据接收
-        webSocketOnMessage2 (e) {
-          const receiveData = JSON.parse(e.data)
-          this.smallMsgShow(receiveData)
-        },
-            // 数据发送
-        webSocketSend2 (data) {
-          this.websocket.send(data)
-        },
-            // 关闭
-        webSocketClose2 (e) {
-          console.log('2 WebSocket连接关闭')
-        },
-        smallMsgShow (messageContent) {
-          this.handleUpdateMsgStatus(messageContent)
-          this.$notify({
-            title: messageContent.title,
-            message: messageContent.content,
-            position: 'bottom-right'
-          })
-        },
-        bigMsgShow () {
-          this.bigMessageVisible = true
-          this.$nextTick(() => {
-            this.$refs.bigMessage.init()
-          })
-        },
-            // 用于单条消息修改状态
-        handleUpdateMsgStatus (messageContent) {
-          this.webSocketSend(messageContent.id)
-        },
-            // 用于当前标记为已读
-        handleUpdateMsgStatus2 () {
-          if (this.messageContentFive) {
-            let s = ''
-            for (let i = 0; i < this.messageContentFive.length; i++) {
-              if (i === this.messageContentFive.length - 1) {
-                s += this.messageContentFive[i].id
-              } else {
-                s += this.messageContentFive[i].id
-                s += ','
-              }
-            }
-            this.webSocketSend(s)
-          }
         }
       }
     }
