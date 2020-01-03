@@ -111,7 +111,7 @@
           :on-preview="handlePreview"
           :on-remove="handleRemove"
           :before-upload="beforeUpload"
-          :on-success="onSuccess"
+          :on-success="handleSuccess"
           :file-list="fileList"
           :auto-upload="false">
           <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
@@ -377,7 +377,7 @@
           }
           return isLt100M
         },
-        onSuccess (response, file, fileList) {
+        handleSuccess (response, file, fileList) {
           console.log(response)
           if (response && response.code === 0) {
             file.name = response.data.name
