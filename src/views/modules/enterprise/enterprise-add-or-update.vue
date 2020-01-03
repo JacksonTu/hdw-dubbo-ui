@@ -103,27 +103,21 @@
       </el-form-item>
       <el-form-item label="企业附件" prop="">
         <el-upload
+          class="upload-demo"
           ref="upload"
-          class="upload-recordDetail"
           :action="uploadUrl"
           name="file"
-          :auto-upload="false"
-          multiple
-          :file-list="fileList"
-          :on-remove="handleRemove"
+          accept=".doc,.docx,.xls,.xlsx,.pdf,.png,.jpg,.gif"
           :on-preview="handlePreview"
-          :on-change="handleChange">
-          <el-button slot="trigger" size="small" type="primary">点击上传</el-button>
+          :on-remove="handleRemove"
+          :before-upload="beforeUpload"
+          :on-success="onSuccess"
+          :file-list="fileList"
+          :auto-upload="false">
+          <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
           <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-          <div slot="tip" class="el-upload__tip">只能上传不超过10M大小的文件</div>
+          <div slot="tip" class="el-upload__tip">只能上传doc/docx/xls/xlsx/pdf/png/jpg/gif文件，且不超过100MB</div>
         </el-upload>
-        <el-carousel :interval="4000" type="card" height="200px" v-if="carouselVisible"
-                     style="border:1px solid #fff">
-          <el-carousel-item v-for="item in imgList" :key="item.name">
-            <h3>{{ item.name }}</h3>
-            <img :src="item.url" alt="picture" width="100%" height="80%">
-          </el-carousel-item>
-        </el-carousel>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -169,8 +163,6 @@
           areaList: [],
           uploadUrl: '',
           fileList: [],
-          imgList: [],
-          carouselVisible: false,
           dataRule: {
             prefix: [
               {required: true, message: '企业id前缀不能为空', trigger: 'blur'}
@@ -256,6 +248,9 @@
           this.visible = true
           this.$nextTick(() => {
             this.$refs['dataForm'].resetFields()
+            this.uploadUrl = this.$http.adornUrl(`/enterprise/uploadFile?token=` + this.$cookie.get('token'))
+            this.fileList = []
+            this.lookFile(id)
             this.initIndustryList()
             this.initAreaList()
             if (this.dataForm.id) {
@@ -292,108 +287,8 @@
               })
             }
           })
-          this.$nextTick(() => {
-            this.$refs['dataForm'].resetFields()
-            this.uploadUrl = this.$http.adornUrl(`/enterprise/uploadFile?token=` + this.$cookie.get('token'))
-            this.fileList = []
-            this.imgList = []
-            this.carouselVisible = false
-            if (this.dataForm.id) {
-              this.$http({
-                url: this.$http.adornUrl(`/enterprise/selectFile/${this.dataForm.id}`),
-                method: 'get',
-                params: this.$http.adornParams()
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-                  var files = data.data
-                  var x
-                  for (x in files) {
-                    var localAddr = files[x].attachmentPath
-                    var f = {name: files[x].attachmentName, url: localAddr, id: files[x].id}
-                    this.fileList.push(f)
-                    var fi = {name: files[x].attachmentName, url: localAddr}
-                    if (/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test(files[x].attachmentName)) {
-                      this.imgList.push(fi)
-                    }
-                    if (this.imgList.length > 0) {
-                      this.carouselVisible = true
-                    }
-                  }
-                }
-              })
-            }
-          })
         },
-        initIndustryList () {
-          this.industryList = []
-          this.$http({
-            url: this.$http.adornUrl('/sys/dic/select/9'),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            this.industryList = data.data
-          })
-        },
-        initAreaList () {
-          this.areaList = []
-          this.$http({
-            url: this.$http.adornUrl('/sys/dic/select/16'),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            this.areaList = data.data
-          })
-        },
-        submitUpload () {
-          this.$refs.upload.submit()
-        },
-        handleRemove (file, fileList) {
-          var id = file.id
-          var fileName = file.name
-          var url = ''
-          if (file.id) {
-            url = '/enterprise/deleteFileById?id=' + id
-          } else {
-            url = '/enterprise/deleteFileByName?fileName=' + fileName
-          }
-          if (url) {
-            this.$http({
-              url: this.$http.adornUrl(url),
-              method: 'get',
-              params: this.$http.adornParams()
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.$message({
-                  message: '操作成功',
-                  type: 'success',
-                  duration: 1500
-                })
-              } else {
-                this.$message.error(data.msg)
-              }
-            })
-          }
-          this.handleChange(file, fileList)
-        },
-        handlePreview (file, fileList) {
-          window.open(file.url)
-        },
-        handleChange (file, fileList) {
-          this.imgList = []
-          var x
-          for (x in fileList) {
-            var fi = {name: fileList[x].name, url: fileList[x].url}
-            if (/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test(fileList[x].name)) {
-              this.imgList.push(fi)
-            }
-          }
-          if (this.imgList.length > 0) {
-            this.carouselVisible = true
-          } else {
-            this.carouselVisible = false
-          }
-        },
-            // 表单提交
+        // 表单提交
         dataFormSubmit () {
           this.$refs['dataForm'].validate((valid) => {
             if (valid) {
@@ -441,6 +336,86 @@
                   this.$message.error(data.msg)
                 }
               })
+            }
+          })
+        },
+        initIndustryList () {
+          this.industryList = []
+          this.$http({
+            url: this.$http.adornUrl('/sys/dic/select/9'),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            this.industryList = data.data
+          })
+        },
+        initAreaList () {
+          this.areaList = []
+          this.$http({
+            url: this.$http.adornUrl('/sys/dic/select/16'),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            this.areaList = data.data
+          })
+        },
+        submitUpload () {
+          this.$refs.upload.submit()
+        },
+        handleRemove (file, fileList) {
+          console.log(file, fileList)
+          this.deleteFile(file)
+        },
+        handlePreview (file) {
+          console.log(file)
+          window.open(file.url, '_blank').location
+        },
+        beforeUpload (file) {
+          const isLt100M = file.size / 1024 / 1024 < 100
+          if (!isLt100M) {
+            this.$message.error('上传文件大小不能超过 100MB!')
+          }
+          return isLt100M
+        },
+        onSuccess (response, file, fileList) {
+          console.log(response)
+          if (response && response.code === 0) {
+            file.name = response.data.name
+            file.url = response.data.url
+          }
+          console.log(file)
+          console.log(fileList)
+        },
+        // 删除文件
+        deleteFile (file) {
+          this.$http({
+            url: this.$http.adornUrl('/enterprise/deleteFile'),
+            method: 'get',
+            params: this.$http.adornParams({
+              'id': this.dataForm.id,
+              'name': file.name,
+              'url': file.url
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: data.msg,
+                type: 'success'
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        },
+        // 查看文件
+        lookFile (id) {
+          this.$http({
+            url: this.$http.adornUrl('/enterprise/lookFile/' + id),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.fileList = data.data
             }
           })
         }
