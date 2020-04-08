@@ -37,6 +37,7 @@
 </template>
 
 <script>
+  import {aes} from '@/utils/crypto'
   export default {
     data () {
       return {
@@ -72,14 +73,16 @@
               url: this.$http.adornUrl('/sys/login'),
               method: 'post',
               data: this.$http.adornData({
-                'username': this.dataForm.userName,
-                'password': this.dataForm.password,
+                'username': aes.en(JSON.stringify(this.dataForm.userName)),
+                'password': aes.en(JSON.stringify(this.dataForm.password)),
                 'checkKey': this.dataForm.checkKey,
                 'captcha': this.dataForm.captcha
               })
             }).then(({data}) => {
+              console.log(data)
               if (data && data.code === 0) {
-                this.$cookie.set('token', data.token)
+                console.log(data.data.token)
+                this.$cookie.set('token', data.data.token)
                 this.$router.replace({ name: 'home' })
               } else {
                 this.getCaptcha()
@@ -97,8 +100,8 @@
           params: this.$http.adornParams({})
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataForm.checkKey = data.key
-            this.captchaPath = data.image
+            this.dataForm.checkKey = data.data.key
+            this.captchaPath = data.data.image
           }
         })
       }
