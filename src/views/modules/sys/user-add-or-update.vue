@@ -84,7 +84,7 @@
               :clearable="isClearable"
               :accordion="isAccordion"
               @getValue="getValue($event)"
-              />
+            />
           </el-form-item>
           <el-form-item label="所属职务" prop="jobName">
             <el-select clearable filterable v-model="dataForm.jobId" placeholder="请选择">
@@ -131,256 +131,256 @@
 </template>
 
 <script>
-    import {isEmail, isMobile} from '@/utils/validate'
-    import {treeDataTranslate} from '@/utils'
-    import SelectTree from '../../../components/tree-select/index'
+  import {isEmail, isMobile} from '@/utils/validate'
+  import {treeDataTranslate} from '@/utils'
+  import SelectTree from '../../../components/tree-select/index'
 
-    export default {
-      data () {
-        var validatePassword = (rule, value, callback) => {
-          if (!this.dataForm.id && !/\S/.test(value)) {
-            callback(new Error('密码不能为空'))
-          } else {
-            callback()
-          }
-        }
-        var validateComfirmPassword = (rule, value, callback) => {
-          if (!this.dataForm.id && !/\S/.test(value)) {
-            callback(new Error('确认密码不能为空'))
-          } else if (this.dataForm.password !== value) {
-            callback(new Error('确认密码与密码输入不一致'))
-          } else {
-            callback()
-          }
-        }
-        var validateEmail = (rule, value, callback) => {
-          if (!isEmail(value)) {
-            callback(new Error('邮箱格式错误'))
-          } else {
-            callback()
-          }
-        }
-        var validateMobile = (rule, value, callback) => {
-          if (!isMobile(value)) {
-            callback(new Error('手机号格式错误'))
-          } else {
-            callback()
-          }
-        }
-        return {
-          visible: false,
-          dataForm: {
-            id: 0,
-            loginName: '',
-            name: '',
-            password: '',
-            comfirmPassword: '',
-            sex: 0,
-            email: '',
-            phone: '',
-            roleIdList: [],
-            status: 1,
-            expired: 1,
-            isLeader: 1,
-            userType: 1,
-            typeList: ['超级用户', '企业用户', '监管用户'],
-            enterpriseId: '',
-            departmentId: '',
-            jobId: '',
-            enterpriseIdList: ''
-          },
-          activeName: 'first',
-          roleList: [],
-          unitList: [],
-          jobList: [],
-          deptOptions: [],
-          isClearable: true,      // 可清空（可选）
-          isAccordion: true,      // 可收起（可选）
-          valueId: '',            // 初始ID（可选）
-          props: {                // 配置项（必选）
-            value: 'id',
-            label: 'name',
-            children: 'children'
-                    // disabled:true
-          },
-          dataRule: {
-            loginName: [
-                        {required: true, message: '登录名不能为空', trigger: 'blur'}
-            ],
-            name: [
-                        {required: true, message: '用户名不能为空', trigger: 'blur'}
-            ],
-            password: [
-                        {validator: validatePassword, trigger: 'blur'}
-            ],
-            comfirmPassword: [
-                        {validator: validateComfirmPassword, trigger: 'blur'}
-            ],
-            email: [
-                        {required: true, message: '邮箱不能为空', trigger: 'blur'},
-                        {validator: validateEmail, trigger: 'blur'}
-            ],
-            phone: [
-                        {required: true, message: '手机号不能为空', trigger: 'blur'},
-                        {validator: validateMobile, trigger: 'blur'}
-            ]
-          }
-        }
-      },
-      components: {
-        SelectTree
-      },
-      methods: {
-        init (id) {
-          this.dataForm.id = id || 0
-          this.visible = true
-          this.activeName = 'first'
-          this.$nextTick(() => {
-            this.$refs['dataForm'].resetFields()
-            this.roleList = []
-            this.unitList = []
-            this.deptOptions = []
-            this.jobList = []
-            if (this.dataForm.id) {
-              this.$http({
-                url: this.$http.adornUrl(`/sys/user/info/${this.dataForm.id}`),
-                method: 'get',
-                params: this.$http.adornParams()
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-                  this.dataForm.loginName = data.data.loginName
-                  this.dataForm.name = data.data.name
-                  this.dataForm.sex = data.data.sex
-                  this.dataForm.email = data.data.email
-                  this.dataForm.phone = data.data.phone
-                  this.dataForm.roleIdList = data.data.roleIdList
-                  this.dataForm.status = data.data.status
-                  this.dataForm.expired = data.data.expired
-                  this.dataForm.userType = data.data.userType
-                  this.dataForm.isLeader = data.data.isLeader
-                  this.dataForm.enterpriseId = data.data.enterpriseId
-                  this.dataForm.departmentId = data.data.departmentId
-                  this.dataForm.jobId = data.data.jobId
-                  this.dataForm.enterpriseIdList = data.data.enterpriseIdList
-                }
-              })
-            }
-          })
-        },
-            // 表单提交
-        dataFormSubmit () {
-          this.$refs['dataForm'].validate((valid) => {
-            if (valid) {
-              this.$http({
-                url: this.$http.adornUrl(`/sys/user/${!this.dataForm.id ? 'save' : 'update'}`),
-                method: 'post',
-                data: this.$http.adornData({
-                  'id': this.dataForm.id || undefined,
-                  'loginName': this.dataForm.loginName,
-                  'name': this.dataForm.name,
-                  'password': this.dataForm.password,
-                  'email': this.dataForm.email,
-                  'phone': this.dataForm.phone,
-                  'status': this.dataForm.status,
-                  'roleIdList': this.dataForm.roleIdList,
-                  'expired': this.dataForm.expired,
-                  'isLeader': this.dataForm.isLeader,
-                  'userType': this.dataForm.userType,
-                  'enterpriseId': this.dataForm.enterpriseId,
-                  'departmentId': this.dataForm.departmentId,
-                  'jobId': this.dataForm.jobId,
-                  'enterpriseIdList': this.dataForm.userType === 2 ? this.dataForm.enterpriseIdList : []
-                })
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-                  this.$message({
-                    message: '操作成功',
-                    type: 'success',
-                    duration: 1500,
-                    onClose: () => {
-                      this.visible = false
-                      this.$emit('refreshDataList')
-                    }
-                  })
-                } else {
-                  this.$message.error(data.msg)
-                }
-              })
-            }
-          })
-        },
-            // tab切换
-        handleClick (tab, event) {
-          if (tab.name === 'first') {
-
-          } else if (tab.name === 'second') {
-            this.getRoleList()
-          } else if (tab.name === 'third') {
-            this.getUnitList()
-            this.getDeptList()
-            this.getJobList()
-          } else if (tab.name === 'fourth') {
-            this.getUnitList()
-          }
-        },
-            // 获取角色
-        getRoleList () {
-          this.$http({
-            url: this.$http.adornUrl('/sys/role/select'),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            this.roleList = data && data.code === 0 ? data.data.list : []
-          })
-        },
-            // 获取企业树
-        getUnitList () {
-          this.$http({
-            url: this.$http.adornUrl('/enterprise/getEnterpriseTree'),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            this.unitList = data.data
-          })
-        },
-        // 获取企业部门树
-        getDeptList () {
-          this.dataForm.enterpriseId = this.dataForm.enterpriseId || ''
-          this.deptList = []
-          this.$http({
-            url: this.$http.adornUrl('/enterprise/enterpriseDepartment/getDeptSelectTree?enterpriseId=' + this.dataForm.enterpriseId),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            this.deptOptions = treeDataTranslate(data.data)
-          })
-        },
-        // 获取部门职位树
-        getJobList () {
-          this.dataForm.departmentId = this.dataForm.departmentId || ''
-          this.jobList = []
-          this.$http({
-            url: this.$http.adornUrl('/enterprise/enterpriseJob/selectJobTree?deptId=' + this.dataForm.departmentId),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            this.jobList = data.data
-          })
-        },
-        // 企业选择改变
-        handleChangeEnterprise () {
-          this.getDeptList()
-        },
-        // 部门选择改变
-        handleChangeDept () {
-          this.getJobList()
-        },
-        // 取值
-        getValue (value) {
-          this.valueId = value
-          this.dataForm.departmentId = this.valueId
-          this.handleChangeDept()
+  export default {
+    data() {
+      var validatePassword = (rule, value, callback) => {
+        if (!this.dataForm.id && !/\S/.test(value)) {
+          callback(new Error('密码不能为空'))
+        } else {
+          callback()
         }
       }
+      var validateComfirmPassword = (rule, value, callback) => {
+        if (!this.dataForm.id && !/\S/.test(value)) {
+          callback(new Error('确认密码不能为空'))
+        } else if (this.dataForm.password !== value) {
+          callback(new Error('确认密码与密码输入不一致'))
+        } else {
+          callback()
+        }
+      }
+      var validateEmail = (rule, value, callback) => {
+        if (!isEmail(value)) {
+          callback(new Error('邮箱格式错误'))
+        } else {
+          callback()
+        }
+      }
+      var validateMobile = (rule, value, callback) => {
+        if (!isMobile(value)) {
+          callback(new Error('手机号格式错误'))
+        } else {
+          callback()
+        }
+      }
+      return {
+        visible: false,
+        dataForm: {
+          id: 0,
+          loginName: '',
+          name: '',
+          password: '',
+          comfirmPassword: '',
+          sex: 0,
+          email: '',
+          phone: '',
+          roleIdList: [],
+          status: 1,
+          expired: 1,
+          isLeader: 1,
+          userType: 1,
+          typeList: ['超级用户', '企业用户', '监管用户'],
+          enterpriseId: '',
+          departmentId: '',
+          jobId: '',
+          enterpriseIdList: ''
+        },
+        activeName: 'first',
+        roleList: [],
+        unitList: [],
+        jobList: [],
+        deptOptions: [],
+        isClearable: true,      // 可清空（可选）
+        isAccordion: true,      // 可收起（可选）
+        valueId: '',            // 初始ID（可选）
+        props: {                // 配置项（必选）
+          value: 'id',
+          label: 'name',
+          children: 'children'
+          // disabled:true
+        },
+        dataRule: {
+          loginName: [
+            {required: true, message: '登录名不能为空', trigger: 'blur'}
+          ],
+          name: [
+            {required: true, message: '用户名不能为空', trigger: 'blur'}
+          ],
+          password: [
+            {validator: validatePassword, trigger: 'blur'}
+          ],
+          comfirmPassword: [
+            {validator: validateComfirmPassword, trigger: 'blur'}
+          ],
+          email: [
+            {required: true, message: '邮箱不能为空', trigger: 'blur'},
+            {validator: validateEmail, trigger: 'blur'}
+          ],
+          phone: [
+            {required: true, message: '手机号不能为空', trigger: 'blur'},
+            {validator: validateMobile, trigger: 'blur'}
+          ]
+        }
+      }
+    },
+    components: {
+      SelectTree
+    },
+    methods: {
+      init(id) {
+        this.dataForm.id = id || 0
+        this.visible = true
+        this.activeName = 'first'
+        this.$nextTick(() => {
+          this.$refs['dataForm'].resetFields()
+          this.roleList = []
+          this.unitList = []
+          this.deptOptions = []
+          this.jobList = []
+          if (this.dataForm.id) {
+            this.$http({
+              url: this.$http.adornUrl(`/sys/user/info/${this.dataForm.id}`),
+              method: 'get',
+              params: this.$http.adornParams()
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.dataForm.loginName = data.data.loginName
+                this.dataForm.name = data.data.name
+                this.dataForm.sex = data.data.sex
+                this.dataForm.email = data.data.email
+                this.dataForm.phone = data.data.phone
+                this.dataForm.roleIdList = data.data.roleIdList
+                this.dataForm.status = data.data.status
+                this.dataForm.expired = data.data.expired
+                this.dataForm.userType = data.data.userType
+                this.dataForm.isLeader = data.data.isLeader
+                this.dataForm.enterpriseId = data.data.enterpriseId
+                this.dataForm.departmentId = data.data.departmentId
+                this.dataForm.jobId = data.data.jobId
+                this.dataForm.enterpriseIdList = data.data.enterpriseIdList
+              }
+            })
+          }
+        })
+      },
+      // 表单提交
+      dataFormSubmit() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.$http({
+              url: this.$http.adornUrl(`/sys/user/${!this.dataForm.id ? 'save' : 'update'}`),
+              method: 'post',
+              data: this.$http.adornData({
+                'id': this.dataForm.id || undefined,
+                'loginName': this.dataForm.loginName,
+                'name': this.dataForm.name,
+                'password': this.dataForm.password,
+                'email': this.dataForm.email,
+                'phone': this.dataForm.phone,
+                'status': this.dataForm.status,
+                'roleIdList': this.dataForm.roleIdList,
+                'expired': this.dataForm.expired,
+                'isLeader': this.dataForm.isLeader,
+                'userType': this.dataForm.userType,
+                'enterpriseId': this.dataForm.enterpriseId,
+                'departmentId': this.dataForm.departmentId,
+                'jobId': this.dataForm.jobId,
+                'enterpriseIdList': this.dataForm.userType === 2 ? this.dataForm.enterpriseIdList : []
+              })
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1500,
+                  onClose: () => {
+                    this.visible = false
+                    this.$emit('refreshDataList')
+                  }
+                })
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+          }
+        })
+      },
+      // tab切换
+      handleClick(tab, event) {
+        if (tab.name === 'first') {
+
+        } else if (tab.name === 'second') {
+          this.getRoleList()
+        } else if (tab.name === 'third') {
+          this.getUnitList()
+          this.getDeptList()
+          this.getJobList()
+        } else if (tab.name === 'fourth') {
+          this.getUnitList()
+        }
+      },
+      // 获取角色
+      getRoleList() {
+        this.$http({
+          url: this.$http.adornUrl('/sys/role/select'),
+          method: 'get',
+          params: this.$http.adornParams()
+        }).then(({data}) => {
+          this.roleList = data && data.code === 0 ? data.data : []
+        })
+      },
+      // 获取企业树
+      getUnitList() {
+        this.$http({
+          url: this.$http.adornUrl('/enterprise/getEnterpriseTree'),
+          method: 'get',
+          params: this.$http.adornParams()
+        }).then(({data}) => {
+          this.unitList = data.data
+        })
+      },
+      // 获取企业部门树
+      getDeptList() {
+        this.dataForm.enterpriseId = this.dataForm.enterpriseId || ''
+        this.deptList = []
+        this.$http({
+          url: this.$http.adornUrl('/enterprise/enterpriseDepartment/getDeptSelectTree?enterpriseId=' + this.dataForm.enterpriseId),
+          method: 'get',
+          params: this.$http.adornParams()
+        }).then(({data}) => {
+          this.deptOptions = treeDataTranslate(data.data)
+        })
+      },
+      // 获取部门职位树
+      getJobList() {
+        this.dataForm.departmentId = this.dataForm.departmentId || ''
+        this.jobList = []
+        this.$http({
+          url: this.$http.adornUrl('/enterprise/enterpriseJob/selectJobTree?deptId=' + this.dataForm.departmentId),
+          method: 'get',
+          params: this.$http.adornParams()
+        }).then(({data}) => {
+          this.jobList = data.data
+        })
+      },
+      // 企业选择改变
+      handleChangeEnterprise() {
+        this.getDeptList()
+      },
+      // 部门选择改变
+      handleChangeDept() {
+        this.getJobList()
+      },
+      // 取值
+      getValue(value) {
+        this.valueId = value
+        this.dataForm.departmentId = this.valueId
+        this.handleChangeDept()
+      }
     }
+  }
 </script>
