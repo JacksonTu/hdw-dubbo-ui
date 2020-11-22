@@ -184,9 +184,9 @@
           isLeader: 1,
           userType: 1,
           typeList: ['超级用户', '企业用户', '监管用户'],
-          enterpriseId: '',
-          departmentId: '',
-          jobId: '',
+          enterpriseId: 0,
+          departmentId: 0,
+          jobId: 0,
           enterpriseIdList: ''
         },
         activeName: 'first',
@@ -201,7 +201,6 @@
           value: 'id',
           label: 'name',
           children: 'children'
-          // disabled:true
         },
         dataRule: {
           loginName: [

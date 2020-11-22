@@ -8,11 +8,8 @@
       <el-form-item label="企业名称" prop="enterpriseName">
         <el-input v-model="dataForm.enterpriseName" placeholder="企业名称"></el-input>
       </el-form-item>
-      <el-form-item label="企业ID前缀" prop="prefix">
-        <el-input v-model="dataForm.prefix" placeholder="企业id前缀"></el-input>
-      </el-form-item>
       <el-form-item label="企业注册码" prop="businessLicenseNumber">
-        <el-input v-model="dataForm.businessLicenseNumber" placeholder="企业注册码(工商注册码-三证合一)"></el-input>
+        <el-input v-model="dataForm.businessLicenseNumber" placeholder="工商注册码"></el-input>
       </el-form-item>
       <el-form-item label="企业编号" prop="enterpriseCode">
         <el-input v-model="dataForm.enterpriseCode" placeholder="企业编号"></el-input>
@@ -39,7 +36,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="企业类型)" prop="enterpriseType">
+      <el-form-item label="企业类型" prop="enterpriseType">
         <el-radio-group v-model="dataForm.enterpriseType">
           <el-radio :label="0">国企</el-radio>
           <el-radio :label="1">民企</el-radio>
@@ -62,20 +59,8 @@
       <el-form-item label="企业负责人姓名" prop="mainPerson">
         <el-input v-model="dataForm.mainPerson" placeholder="企业负责人姓名"></el-input>
       </el-form-item>
-      <el-form-item label="企业负责人移动电话号码" prop="mainPersonMobile">
+      <el-form-item label="企业负责人电话" prop="mainPersonMobile">
         <el-input v-model="dataForm.mainPersonMobile" placeholder="企业负责人移动电话号码"></el-input>
-      </el-form-item>
-      <el-form-item label="企业负责人固定电话号码" prop="mainPersonTelephone">
-        <el-input v-model="dataForm.mainPersonTelephone" placeholder="企业负责人固定电话号码"></el-input>
-      </el-form-item>
-      <el-form-item label="企业安全负责人姓名" prop="safePerson">
-        <el-input v-model="dataForm.safePerson" placeholder="企业安全负责人姓名"></el-input>
-      </el-form-item>
-      <el-form-item label="企业安全负责人移动电话号码" prop="safePersonMobile">
-        <el-input v-model="dataForm.safePersonMobile" placeholder="企业安全负责人移动电话号码"></el-input>
-      </el-form-item>
-      <el-form-item label="企业安全负责人固定电话号码" prop="safePersonTelephone">
-        <el-input v-model="dataForm.safePersonTelephone" placeholder="企业安全负责人固定电话号码"></el-input>
       </el-form-item>
       <el-form-item label="x坐标" prop="mapX">
         <el-input v-model="dataForm.mapX" placeholder="x坐标"></el-input>
@@ -88,12 +73,6 @@
       </el-form-item>
       <el-form-item label="地址" prop="address">
         <el-input v-model="dataForm.address" placeholder="地址"></el-input>
-      </el-form-item>
-      <el-form-item label="数据是否同步" prop="isSync">
-        <el-radio-group v-model="dataForm.isSync">
-          <el-radio :label="0">是</el-radio>
-          <el-radio :label="1">否</el-radio>
-        </el-radio-group>
       </el-form-item>
       <el-form-item label="企业状态" prop="status">
         <el-radio-group v-model="dataForm.status">
@@ -134,7 +113,6 @@
           visible: false,
           dataForm: {
             id: 0,
-            prefix: '',
             businessLicenseNumber: '',
             enterpriseCode: '',
             enterpriseName: '',
@@ -147,16 +125,10 @@
             legalPerson: '',
             mainPerson: '',
             mainPersonMobile: '',
-            mainPersonTelephone: '',
-            safePerson: '',
-            safePersonMobile: '',
-            safePersonTelephone: '',
             mapX: '',
             mapY: '',
             mapZ: '',
             address: '',
-            isTrans: '',
-            isSync: 0,
             status: 0
           },
           industryList: [],
@@ -164,9 +136,6 @@
           uploadUrl: '',
           fileList: [],
           dataRule: {
-            prefix: [
-              {required: true, message: '企业id前缀不能为空', trigger: 'blur'}
-            ],
             businessLicenseNumber: [
               {required: true, message: '企业注册码(工商注册码-三证合一)不能为空', trigger: 'blur'}
             ],
@@ -206,21 +175,6 @@
               {required: true, message: '企业负责人移动电话号码不能为空', trigger: 'blur'},
               {pattern: /^1[34578]\d{9}$/, message: '你的手机号格式不正确'}
             ],
-            mainPersonTelephone: [
-              {required: true, message: '企业负责人固定电话号码不能为空', trigger: 'blur'},
-              {pattern: /0\d{2}-\d{7,8}/, message: '你的座机号格式不正确'}
-            ],
-            safePerson: [
-              {required: true, message: '企业安全负责人姓名不能为空', trigger: 'blur'}
-            ],
-            safePersonMobile: [
-              {required: true, message: '企业安全负责人移动电话号码不能为空', trigger: 'blur'},
-              {pattern: /^1[34578]\d{9}$/, message: '你的手机号格式不正确'}
-            ],
-            safePersonTelephone: [
-              {required: true, message: '企业安全负责人固定电话号码不能为空', trigger: 'blur'},
-              {pattern: /0\d{2}-\d{7,8}/, message: '你的座机号格式不正确'}
-            ],
             mapX: [
               {required: true, message: 'x坐标不能为空', trigger: 'blur'}
             ],
@@ -232,9 +186,6 @@
             ],
             address: [
               {required: true, message: '地址不能为空', trigger: 'blur'}
-            ],
-            isSync: [
-              {required: true, message: '数据是否同步不能为空', trigger: 'blur'}
             ],
             status: [
               {required: true, message: '企业状态不能为空', trigger: 'blur'}
@@ -260,7 +211,6 @@
                 params: this.$http.adornParams()
               }).then(({data}) => {
                 if (data && data.code === 0) {
-                  this.dataForm.prefix = data.data.prefix
                   this.dataForm.businessLicenseNumber = data.data.businessLicenseNumber
                   this.dataForm.enterpriseCode = data.data.enterpriseCode
                   this.dataForm.enterpriseName = data.data.enterpriseName
@@ -273,15 +223,10 @@
                   this.dataForm.legalPerson = data.data.legalPerson
                   this.dataForm.mainPerson = data.data.mainPerson
                   this.dataForm.mainPersonMobile = data.data.mainPersonMobile
-                  this.dataForm.mainPersonTelephone = data.data.mainPersonTelephone
-                  this.dataForm.safePerson = data.data.safePerson
-                  this.dataForm.safePersonMobile = data.data.safePersonMobile
-                  this.dataForm.safePersonTelephone = data.data.safePersonTelephone
                   this.dataForm.mapX = data.data.mapX
                   this.dataForm.mapY = data.data.mapY
                   this.dataForm.mapZ = data.data.mapZ
                   this.dataForm.address = data.data.address
-                  this.dataForm.isSync = data.data.isSync
                   this.dataForm.status = data.data.status
                 }
               })
@@ -297,7 +242,6 @@
                 method: 'post',
                 data: this.$http.adornData({
                   'id': this.dataForm.id || undefined,
-                  'prefix': this.dataForm.prefix,
                   'businessLicenseNumber': this.dataForm.businessLicenseNumber,
                   'enterpriseCode': this.dataForm.enterpriseCode,
                   'enterpriseName': this.dataForm.enterpriseName,
@@ -310,15 +254,10 @@
                   'legalPerson': this.dataForm.legalPerson,
                   'mainPerson': this.dataForm.mainPerson,
                   'mainPersonMobile': this.dataForm.mainPersonMobile,
-                  'mainPersonTelephone': this.dataForm.mainPersonTelephone,
-                  'safePerson': this.dataForm.safePerson,
-                  'safePersonMobile': this.dataForm.safePersonMobile,
-                  'safePersonTelephone': this.dataForm.safePersonTelephone,
                   'mapX': this.dataForm.mapX,
                   'mapY': this.dataForm.mapY,
                   'mapZ': this.dataForm.mapZ,
                   'address': this.dataForm.address,
-                  'isSync': this.dataForm.isSync,
                   'status': this.dataForm.status
                 })
               }).then(({data}) => {

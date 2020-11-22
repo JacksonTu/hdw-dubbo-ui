@@ -55,7 +55,7 @@
         prop="businessLicenseNumber"
         header-align="center"
         align="center"
-        label="企业注册码">
+        label="工商注册码">
       </el-table-column>
       <el-table-column
         prop="enterpriseCode"
@@ -121,31 +121,7 @@
         prop="mainPersonMobile"
         header-align="center"
         align="center"
-        label="企业负责人移动电话号码">
-      </el-table-column>
-      <el-table-column
-        prop="mainPersonTelephone"
-        header-align="center"
-        align="center"
-        label="企业负责人固定电话号码">
-      </el-table-column>
-      <el-table-column
-        prop="safePerson"
-        header-align="center"
-        align="center"
-        label="企业安全负责人姓名">
-      </el-table-column>
-      <el-table-column
-        prop="safePersonMobile"
-        header-align="center"
-        align="center"
-        label="企业安全负责人移动电话号码">
-      </el-table-column>
-      <el-table-column
-        prop="safePersonTelephone"
-        header-align="center"
-        align="center"
-        label="企业安全负责人固定电话号码">
+        label="企业负责人电话">
       </el-table-column>
       <el-table-column
         prop="mapX"

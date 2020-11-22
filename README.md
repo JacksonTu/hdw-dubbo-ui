@@ -7,17 +7,50 @@
 - 发布时，可动态配置CDN静态资源／切换新旧版本
 - 演示地址：http://locahost:8090 (账号密码：admin/123456)
 
+#### 前端启动
+    1. 安装淘宝NPM镜像
+    ```bush
+    npm install -g cnpm --registry=https://registry.npm.taobao.org
+    npm config set registry  https://registry.npm.taobao.org
+    ```
+    2. 运行
+    ```bush
+        cnpm install
+        npm run dev
+    ```
+    访问 http://localhost:8090
 
+#### 打包部署
+ ```bush
+ npm run build  --正式环境
+ npm run build -test --测试环境
+ ```
 
 #### 系统预览
-![image](https://images.gitee.com/uploads/images/2019/1115/104342_b5ec71f2_381747.png)
-![image](https://images.gitee.com/uploads/images/2019/1115/104223_ab350d2f_381747.png)
-![image](https://images.gitee.com/uploads/images/2019/1115/104223_81f580aa_381747.png)
-![image](https://images.gitee.com/uploads/images/2019/1115/104226_ca90d4ec_381747.png)
-![image](https://images.gitee.com/uploads/images/2019/1115/104223_b419cfa2_381747.png)
-![image](https://images.gitee.com/uploads/images/2019/1115/104223_77c64414_381747.png)
+<table>
+  <tr>
+     <td><img src="docs/images/1.png"/></td>
+     <td><img src="docs/images/2.png"/></td>
+  </tr>
+  <tr>
+     <td><img src="docs/images/3.png"/></td>
+     <td><img src="docs/images/4.png"/></td>
+  </tr>
+  <tr>
+     <td><img src="docs/images/5.png"/></td>
+     <td><img src="docs/images/6.png"/></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/7.png"/></td>
+    <td><img src="docs/images/8.png"/></td>
+  </tr>
+</table>
 
+#### 技术交流
+加入QQ群和大家一起交流吹水：
+
+![qq](docs/images/QQ.png)
 
 ### 更新日志
-+ v3.0.0
++ v3.1.0
  + 代码优化

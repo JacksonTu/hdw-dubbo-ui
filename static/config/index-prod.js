@@ -5,9 +5,9 @@
   window.SITE_CONFIG = {}
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://localhost:8182'
+  window.SITE_CONFIG['baseUrl'] = 'http://localhost:8190'
   // ws接口请求地址
-  window.SITE_CONFIG['wsUrl'] = 'ws://localhost:8182'
+  window.SITE_CONFIG['wsUrl'] = 'ws://localhost:8190'
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain'] = './' // 域名

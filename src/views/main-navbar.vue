@@ -2,7 +2,7 @@
   <nav class="site-navbar" :class="'site-navbar--' + navbarLayoutType">
     <div class="site-navbar__header">
       <h1 class="site-navbar__brand" @click="$router.push({ name: 'home' })">
-        <a class="site-navbar__brand-lg" href="javascript:;">基本平台</a>
+        <a class="site-navbar__brand-lg" href="javascript:;">hdw-dubbo</a>
         <a class="site-navbar__brand-mini" href="javascript:;">BS</a>
       </h1>
     </div>
@@ -17,18 +17,18 @@
       <el-menu
         class="site-navbar__menu site-navbar__menu--right"
         mode="horizontal">
-        <el-menu-item index="1" @click="$router.push({ name: 'theme' })">
+        <el-menu-item class="site-navbar__avatar" index="1">
+          <message title="消息"></message>
+        </el-menu-item>
+        <el-menu-item class="site-navbar__avatar" index="2"  @click="screen">
+          <i class="el-icon-full-screen" :title="fullTitle"></i>
+        </el-menu-item>
+        <el-menu-item index="3" @click="$router.push({ name: 'theme' })">
           <template slot="title">
             <el-badge>
               <icon-svg name="shezhi" class="el-icon-setting"></icon-svg>
             </el-badge>
           </template>
-        </el-menu-item>
-        <el-menu-item  class="site-navbar__avatar" index="2">
-          <i class="el-icon-rank" title="浏览器内全屏"></i>
-        </el-menu-item>
-        <el-menu-item class="site-navbar__avatar" index="3">
-          <message></message>
         </el-menu-item>
         <el-menu-item class="site-navbar__avatar" index="4">
           <el-dropdown :show-timeout="0" placement="bottom">
@@ -52,11 +52,12 @@
     import UpdatePassword from './main-navbar-update-password'
     import {clearLoginInfo} from '@/utils'
     import message from './main-message'
-
+    let flag = 0
     export default {
       data () {
         return {
-          updatePassowrdVisible: false
+          updatePassowrdVisible: false,
+          fullTitle: '全屏'
         }
       },
       components: {
@@ -101,6 +102,54 @@
       destroyed () {
       },
       methods: {
+        // 切换浏览器窗口大小
+        screen: function () {
+          if (flag === 0) {
+            this.fullTitle = '退出全屏'
+            this.fullScreen()
+            flag = 1
+          } else {
+            this.fullTitle = '全屏'
+            this.exitFullScreen()
+            flag = 0
+          }
+        },
+        // 点击放大浏览器窗口
+        fullScreen: function () {
+          const el = document.documentElement
+          const rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullScreen
+          let wscript
+
+          if (typeof rfs !== 'undefined' && rfs) {
+            rfs.call(el)
+            return
+          }
+
+          if (typeof window.ActiveXObject !== 'undefined') {
+            wscript = window.ActiveXObject('WScript.Shell')
+            if (wscript) {
+              wscript.SendKeys('{F11}')
+            }
+          }
+        },
+        // 点击还原浏览器窗口
+        exitFullScreen: function () {
+          const el = document
+          const cfs = el.cancelFullScreen || el.webkitCancelFullScreen || el.mozCancelFullScreen || el.exitFullScreen
+          let wscript
+
+          if (typeof cfs !== 'undefined' && cfs) {
+            cfs.call(el)
+            return
+          }
+
+          if (typeof window.ActiveXObject !== 'undefined') {
+            wscript = window.ActiveXObject('WScript.Shell')
+            if (wscript != null) {
+              wscript.SendKeys('{F11}')
+            }
+          }
+        },
             // 修改密码
         updatePasswordHandle () {
           this.updatePassowrdVisible = true

@@ -1,182 +1,244 @@
 <template>
   <div>
-    <el-popover v-if="messageCount > 0" placement="bottom" trigger="hover">
-      <el-badge :value="messageCount" slot="reference">
+    <el-popover v-if="msgTotal > 0" placement="bottom" trigger="hover" width="350">
+      <el-badge :value="msgTotal" slot="reference">
         <i class="el-icon-bell"></i>
       </el-badge>
       <div>
-        <div v-for="messageContent in messageContents"  class="popitem"
-             style="max-width: 228px;width: 100%;" @click="smallReadOne(messageContent)" :key="messageContent.id">
-          <div style="overflow:hidden;white-space: nowrap;text-overflow: ellipsis;line-height: 1.5em;color: #606266;width: 100%;">
-            {{messageContent.content}}
-          </div>
-          <div style="font-size: 12px; color: #999;width: 100%;text-align: right;padding-top: 6px;">
-            {{messageContent.timeStr}}
-          </div>
-        </div>
-        <el-divider></el-divider>
-        <div style="font-weight: bold;width: 100%;" v-if="messageCount > 5">
-          <div>
-            <div @click="smallReadFive" class="popitem"
-                 style="width: 50%;float: left;text-align: left;">
-              标记当前为已读
+        <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tab-pane :label="msg1Title" name="first">
+            <div v-for="record in noticeMsgContentList" :key="record.id">
+              <el-row>
+                <el-col :span="18">
+                  <div style="margin-left: 5%;width: 80%">
+                    <p><a @click="updateNoticeStatus(record)" style="display: inline-block;cursor: pointer;">{{ record.title }}</a></p>
+                    <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} 发布</p>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div style="text-align: right">
+                    <el-tag v-if="record.priority === 'L'" @click="updateNoticeStatus(record)">一般消息</el-tag>
+                    <el-tag v-if="record.priority === 'M'" type="warning" @click="updateNoticeStatus(record)">重要消息</el-tag>
+                    <el-tag v-if="record.priority === 'H'" type="danger" @click="updateNoticeStatus(record)">紧急消息</el-tag>
+                  </div>
+                </el-col>
+              </el-row>
+              <el-divider />
             </div>
-            <div @click="bigMsg" class="popitem"
-                 style="width: 50%;float: left;text-align: right;">
-              查看全部
+            <div style="margin-top: 5px;text-align: center">
+              <el-button type="dashed" block @click="showMoreNotice()">查看更多</el-button>
             </div>
-          </div>
-        </div>
+          </el-tab-pane>
+          <el-tab-pane :label="msg2Title" name="second">
+            <div v-for="record in sysMsgConnectList" :key="record.id">
+              <el-row>
+                <el-col :span="18">
+                  <div style="margin-left: 5%;width: 80%">
+                    <p><a @click="updateNoticeStatus(record)">{{ record.title }}</a></p>
+                    <p style="color: rgba(0,0,0,.45);margin-bottom: 0px">{{ record.createTime }} 发布</p>
+                  </div>
+                </el-col>
+                <el-col :span="6">
+                  <div style="text-align: right">
+                    <el-tag v-if="record.priority === 'L'" @click="updateNoticeStatus(record)">一般消息</el-tag>
+                    <el-tag v-if="record.priority === 'M'" type="warning" @click="updateNoticeStatus(record)">重要消息</el-tag>
+                    <el-tag v-if="record.priority === 'H'" type="danger" @click="updateNoticeStatus(record)">紧急消息</el-tag>
+                  </div>
+                </el-col>
+              </el-row>
+              <el-divider />
+            </div>
+            <div style="margin-top: 5px;text-align: center">
+              <el-button type="dashed" block @click="showMoreNotice()">查看更多</el-button>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </el-popover>
-    <i v-else="" class="el-icon-bell" @click="bigMsg"></i>
-    <!--消息大弹框-->
-    <big-message v-if="bigMsgVisible" ref="bigMsgVisible" @bigRead="bigMsgRead"></big-message>
+    <show-notice
+      ref="view"
+      :dialog-visible="dialog.isVisible"
+      :title="dialog.title"
+      :type="dialog.type"
+      @close="viewClose"
+      @success="editSuccess"
+    />
+    <show-more-notice
+      ref="viewMore"
+      :dialog-visible="dialogMore.isVisible"
+      :title="dialogMore.title"
+      :type="dialogMore.type"
+      @close="viewMoreClose"
+      @success="editSuccess"
+    />
   </div>
 </template>
 
 <script>
-  import BigMessage from './main-bigMessage'
-  import {getUUID} from '@/utils'
-  export default {
-    data () {
-      return {
-        bigMsgVisible: false, // 消息大弹框
-        messageHide: false,
-        messageContents: [],  // 最新5条消息
-        messageCount: 0, // 未读消息数目
-        webSocketOne: null,
-        webSocketFive: null
-      }
+import ShowNotice from './ShowNotice'
+import ShowMoreNotice from './ShowMoreNotice'
+export default {
+  name: 'MainMessage',
+  data () {
+    return {
+      dialog: {
+        isVisible: false,
+        title: '',
+        type: ''
+      },
+      dialogMore: {
+        isVisible: false,
+        title: '',
+        type: ''
+      },
+      activeName: 'first',
+      noticeMsgContentList: [],
+      sysMsgConnectList: [],
+      msg1Title: '通知公告(0)',
+      msg2Title: '系统消息(0)',
+      msg1Count: '0',
+      msg2Count: '0',
+      msgWebSocket: null
+    }
+  },
+  components: {
+    ShowNotice,
+    ShowMoreNotice
+  },
+  computed: {
+    userId: {
+      get () { return this.$store.state.user.id }
     },
-    components: {
-      BigMessage
+    msgTotal () {
+      return parseInt(this.msg1Count) + parseInt(this.msg2Count)
+    }
+  },
+  mounted () {
+    this.loadData()
+    this.initWebSocket()
+  },
+  destroyed () {
+    this.websocketOnclose()
+  },
+  methods: {
+    handleClick (tab, event) {
+      console.log(tab, event)
     },
-    created () {
-      this.initWebSocketFive()
-      this.initWebSocketOne()
+    editSuccess () {
+      this.loadData()
     },
-    destroyed () {
-      this.overFive()
-      this.overOne()
+    viewClose () {
+      this.dialog.isVisible = false
     },
-    computed: {
-      userId: {
-        get () { return this.$store.state.user.id }
-      }
+    viewMoreClose () {
+      this.dialogMore.isVisible = false
     },
-    methods: {
-      // 大消息框回调已读
-      bigMsgRead (list) {
-        console.log(list)
-        for (var i in list) {
-          this.webSocketSend(list[i])
+    view (row) {
+      this.$refs.view.setNotice(row)
+      this.dialog.title = '查看'
+      this.dialog.isVisible = true
+      this.dialog.type = 'view'
+    },
+    loadData () {
+      this.$http({
+        url: this.$http.adornUrl(`/notice/listNoticeByUser`),
+        method: 'get',
+        params: this.$http.adornParams()
+      }).then(({data}) => {
+        if (data && data.code === 0) {
+          this.noticeMsgContentList = data.data.noticeMsgList
+          this.msg1Count = data.data.noticeMsgTotal
+          this.msg1Title = '通知公告(' + data.data.noticeMsgTotal + ')'
+          this.sysMsgConnectList = data.data.sysMsgList
+          this.msg2Count = data.data.sysMsgTotal
+          this.msg2Title = '系统消息(' + data.data.sysMsgTotal + ')'
         }
-      },
-      // 显示消息大弹框
-      bigMsg () {
-        this.bigMsgVisible = true
-        this.$nextTick(() => {
-          this.$refs.bigMsgVisible.getUnread()
-        })
-      },
-      // 已读单条
-      smallReadOne (item) {
-        this.webSocketSend(item.id)
-        this.smallMsg(item)
-      },
-      // 已读当前5条
-      smallReadFive () {
-        if (this.messageContents) {
-          var s = ''
-          for (var i in this.messageContents) {
-            if (i === this.messageContents.length - 1) {
-              s += this.messageContents[i].id
-            } else {
-              s += this.messageContents[i].id
-              s += ','
-            }
-          }
-          this.webSocketSend(s)
+      })
+    },
+    updateNoticeStatus (record) {
+      this.$http({
+        url: this.$http.adornUrl(`/notice/send/editByNoticeIdAndUserId/${record.id}`),
+        method: 'get',
+        params: this.$http.adornParams()
+      }).then(({data}) => {
+        if (data && data.code === 0) {
+          this.loadData()
         }
-      },
-      // 显示消息小弹框
-      smallMsg (item) {
-        this.$notify.warning({
-          title: item.title,
-          dangerouslyUseHTMLString: true,
-          // message: '<div>' + item.content + '</div>',
-          message: item.content,
-          duration: 0,
+      })
+      this.view(record)
+    },
+    showMoreNotice () {
+      // console.log(this.activeName)
+      this.dialogMore.title = '查看'
+      this.dialogMore.isVisible = true
+      this.dialogMore.type = 'view'
+    },
+    initWebSocket: function () {
+      // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
+      const userId = this.userId
+      const baseUrl = window.SITE_CONFIG.wsUrl
+      const url = baseUrl.replace('https://', 'wss://').replace('http://', 'ws://') + '/ws/common/' + userId
+      this.msgWebSocket = new WebSocket(url)
+      this.msgWebSocket.onopen = this.websocketOnopen
+      this.msgWebSocket.onerror = this.websocketOnerror
+      this.msgWebSocket.onmessage = this.websocketOnmessage
+      this.msgWebSocket.onclose = this.websocketOnclose
+    },
+    websocketOnopen: function () {
+      console.log('WebSocket连接成功')
+    },
+    websocketOnerror: function (e) {
+      console.log('WebSocket连接发生错误')
+      this.reconnect()
+    },
+    websocketOnmessage: function (e) {
+      console.log('接收消息', e.data)
+      const data = JSON.parse(e.data)
+      if (data.cmd === 'topic') {
+        // 系统通知
+        this.loadData()
+        this.$refs.viewMore.getDataList()
+      } else if (data.cmd === 'user') {
+        // 用户消息
+        this.loadData()
+        this.$refs.viewMore.getDataList()
+      }
+      if (data.cmd === 'topic' || data.cmd === 'user') {
+        this.$notify({
+          title: data.msgTitle,
+          message: data.msgTxt,
           position: 'bottom-right'
         })
-      },
-      initWebSocketFive () {
-        console.log('5条消息推送：用户ID:' + this.userId)
-        const userId = this.userId + '_' + getUUID()
-        const wsUri = window.SITE_CONFIG.wsUrl + '/ws/homeSms/' + userId
-        this.webSocketFive = new WebSocket(wsUri)
-        this.webSocketFive.onopen = function () {
-          console.log('five-message-WebSocket连接成功')
-        }
-        this.webSocketFive.onerror = function () {
-          console.log('five-message-WebSocket连接发生错误')
-        }
-        this.webSocketFive.onmessage = this.webSocketOnMessageFive
-        this.webSocketFive.onclose = function () {
-          console.log('five-message-WebSocket连接--关闭')
-        }
-        this.overFive = () => {
-          this.webSocketFive.close()
-        }
-      },
-      initWebSocketOne () {
-        console.log('1条消息推送：用户ID:' + this.userId)
-        const userId = this.userId + '_' + getUUID()
-        const wsUri = window.SITE_CONFIG.wsUrl + '/ws/sms/' + userId
-        this.webSocketOne = new WebSocket(wsUri)
-        this.webSocketOne.onopen = function () {
-          console.log('new-one-message-WebSocket连接成功')
-        }
-        this.webSocketOne.onerror = function () {
-          console.log('new-one-message-WebSocket连接发生错误')
-        }
-        this.webSocketOne.onmessage = this.webSocketOnMessageOne
-        this.webSocketOne.onclose = function () {
-          console.log('new-one-message-WebSocket连接--关闭')
-        }
-        this.overOne = () => {
-          this.webSocketOne.close()
-        }
-      },
-      webSocketOnMessageFive (e) {
-        const redata = JSON.parse(e.data)
-        console.log('5条消息--', redata)
-        this.messageContents = []
-        if (redata.list) {
-          this.messageContents = redata.list
-        }
-        if (redata.count) {
-          this.messageCount = redata.count
-        } else {
-          this.messageCount = 0
-        }
-      },
-      webSocketOnMessageOne (e) {
-        const redata = JSON.parse(e.data)
-        console.log('1条消息--', redata)
-        this.smallMsg(redata)
-      },
-      // WebSocketfive 发送数据
-      webSocketSend (agentData) {
-        this.webSocketFive.send(agentData)
       }
+    },
+    websocketOnclose: function (e) {
+      console.log('connection closed', e)
+      if (e) {
+        console.log('connection closed', e.code)
+      }
+      this.reconnect()
+    },
+    websocketSend (text) { // 数据发送
+      try {
+        this.msgWebSocket.send(text)
+      } catch (err) {
+        console.log('send failed', err.code)
+      }
+    },
+    reconnect () {
+      const that = this
+      if (that.lockReconnect) return
+      that.lockReconnect = true
+      // 没连接上会一直重连，设置延迟避免请求过多
+      setTimeout(function () {
+        console.info('try reconnecting...')
+        that.initWebSocket()
+        that.lockReconnect = false
+      }, 5000)
     }
   }
+}
 </script>
 
 <style scoped>
-  .popitem {
-    padding: 8px;cursor: pointer;
-  }
 </style>

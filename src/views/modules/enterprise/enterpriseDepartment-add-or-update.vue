@@ -48,12 +48,6 @@
       <el-form-item label="预留2" prop="parameter2">
         <el-input v-model="dataForm.parameter2" placeholder="预留2"></el-input>
       </el-form-item>
-      <el-form-item label="数据是否同步" prop="isSync">
-        <el-radio-group v-model="dataForm.isSync">
-          <el-radio :label="0">是</el-radio>
-          <el-radio :label="1">否</el-radio>
-        </el-radio-group>
-      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
@@ -77,7 +71,6 @@
             departmentName: '',
             parameter1: '',
             parameter2: '',
-            isSync: '',
             parentName: ''
           },
           unitList: [],
@@ -104,9 +97,6 @@
             ],
             parameter2: [
                         {required: false, message: '预留2不能为空', trigger: 'blur'}
-            ],
-            isSync: [
-                        {required: true, message: '数据是否同步不能为空', trigger: 'blur'}
             ]
           }
         }
@@ -134,14 +124,13 @@
                   this.dataForm.departmentName = data.data.departmentName
                   this.dataForm.parameter1 = data.data.parameter1
                   this.dataForm.parameter2 = data.data.parameter2
-                  this.dataForm.isSync = data.data.isSync
                   this.deptListTreeSetCurrentNode()
                 }
               })
             }
           })
         },
-            // 表单提交
+        // 表单提交
         dataFormSubmit () {
           this.$refs['dataForm'].validate((valid) => {
             if (valid) {
@@ -155,8 +144,7 @@
                   'departmentCode': this.dataForm.departmentCode,
                   'departmentName': this.dataForm.departmentName,
                   'parameter1': this.dataForm.parameter1,
-                  'parameter2': this.dataForm.parameter2,
-                  'isSync': this.dataForm.isSync
+                  'parameter2': this.dataForm.parameter2
                 })
               }).then(({data}) => {
                 if (data && data.code === 0) {
