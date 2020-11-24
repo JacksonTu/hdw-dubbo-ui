@@ -7,6 +7,13 @@
 - 发布时，可动态配置CDN静态资源／切换新旧版本
 - 演示地址：http://locahost:8090 (账号密码：admin/123456)
 
+### 项目地址
+
+ 平台  | Bright-Cloud（后端） |Bright-Cloud-UI（前端）
+---|---|---
+GitHub | [https://github.com/JacksonTu/Bright-Cloud](https://github.com/JacksonTu/Bright-Cloud) |[https://github.com/JacksonTu/Bright-Cloud-UI](https://github.com/JacksonTu/Bright-Cloud-UI)
+Gitee  | [https://gitee.com/tumao2/Bright-Cloud](https://gitee.com/tumao2/Bright-Cloud) |[https://gitee.com/tumao2/Bright-Cloud-UI](https://gitee.com/tumao2/Bright-Cloud-UI)
+
 #### 前端启动
     1. 安装淘宝NPM镜像
     ```bush
