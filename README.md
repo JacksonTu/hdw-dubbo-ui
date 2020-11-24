@@ -7,12 +7,13 @@
 - 发布时，可动态配置CDN静态资源／切换新旧版本
 - 演示地址：http://locahost:8090 (账号密码：admin/123456)
 
-### 项目地址
+#### 项目地址
 
- 平台  | Bright-Cloud（后端） |Bright-Cloud-UI（前端）
+ 平台  | hdw-dubbo（后端） |hdw-dubbo-ui（前端）
 ---|---|---
-GitHub | [https://github.com/JacksonTu/Bright-Cloud](https://github.com/JacksonTu/Bright-Cloud) |[https://github.com/JacksonTu/Bright-Cloud-UI](https://github.com/JacksonTu/Bright-Cloud-UI)
-Gitee  | [https://gitee.com/tumao2/Bright-Cloud](https://gitee.com/tumao2/Bright-Cloud) |[https://gitee.com/tumao2/Bright-Cloud-UI](https://gitee.com/tumao2/Bright-Cloud-UI)
+GitHub | [https://github.com/JacksonTu/hdw-dubbo](https://github.com/JacksonTu/hdw-dubbo) |[https://github.com/JacksonTu/hdw-dubbo-ui](https://github.com/JacksonTu/hdw-dubbo-ui)
+Gitee  | [https://gitee.com/tumao2/hdw-dubbo](https://gitee.com/tumao2/hdw-dubbo) |[https://gitee.com/tumao2/hdw-dubbo-ui](https://gitee.com/tumao2/hdw-dubbo-ui)
+
 
 #### 前端启动
     1. 安装淘宝NPM镜像
@@ -58,6 +59,6 @@ Gitee  | [https://gitee.com/tumao2/Bright-Cloud](https://gitee.com/tumao2/Bright
 
 ![qq](docs/images/QQ.png)
 
-### 更新日志
+#### 更新日志
 + v3.1.0
  + 代码优化
