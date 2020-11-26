@@ -194,21 +194,19 @@ export default {
     websocketOnmessage: function (e) {
       console.log('接收消息', e.data)
       const data = JSON.parse(e.data)
-      if (data.cmd === 'topic') {
-        // 系统通知
-        this.loadData()
-        this.$refs.viewMore.getDataList()
-      } else if (data.cmd === 'user') {
-        // 用户消息
-        this.loadData()
-        this.$refs.viewMore.getDataList()
-      }
       if (data.cmd === 'topic' || data.cmd === 'user') {
+        // 系统通知或用户消息
+        this.loadData()
+        this.$refs.viewMore.getDataList()
         this.$notify({
           title: data.msgTitle,
           message: data.msgTxt,
           position: 'bottom-right'
         })
+      } else if (data.cmd === 'revoke') {
+        // 撤销
+        this.loadData()
+        this.$refs.viewMore.getDataList()
       }
     },
     websocketOnclose: function (e) {
