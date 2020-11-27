@@ -193,7 +193,7 @@ export default {
     },
     updateNoticeStatus (record) {
       this.$http({
-        url: this.$http.adornUrl(`/notice/send/editByNoticeIdAndUserId/${record.id}`),
+        url: this.$http.adornUrl(`/notice/send/editByNoticeIdAndUserId/${record.noticeId}`),
         method: 'get',
         params: this.$http.adornParams()
       }).then(({data}) => {
